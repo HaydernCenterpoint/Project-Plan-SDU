@@ -37,4 +37,4 @@ RUN composer install --optimize-autoloader --no-dev
 RUN php artisan config:clear || true
 
 # Render sẽ cấp biến môi trường $PORT (thường là ngẫu nhiên), Laravel sẽ chạy trên PORT đó
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+CMD php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
