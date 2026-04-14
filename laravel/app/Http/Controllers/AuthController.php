@@ -251,18 +251,18 @@ class AuthController extends Controller
 
     public function requestProfileUpdate(Request $request)
     {
+        $user = $request->user();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'email' => 'required|string|max:255', // this is teacher code
+            'email' => 'required|string|max:255|unique:users,email,' . $user->id, // Validate trùng mã GV
             'contact_email' => 'nullable|email|max:255',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:255',
             'current_password' => 'nullable|string',
             'password' => 'nullable|string|min:6',
         ]);
-
-        $user = $request->user();
 
         if (!empty($validated['password'])) {
             if (empty($validated['current_password'])) {

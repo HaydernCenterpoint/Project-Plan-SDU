@@ -117,10 +117,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                       <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
                         type="text" 
-                        readOnly
-                        placeholder="Đang cấp phát..."
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-slate-100 rounded-xl text-sm font-bold text-slate-700 outline-none cursor-not-allowed"
+                        placeholder="Nhập mã giáo viên..."
+                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-[#CC0000]/10 focus:border-[#CC0000] transition-all"
                         value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                   </div>

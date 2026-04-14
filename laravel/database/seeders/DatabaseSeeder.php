@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
 
         // Ban Giám Hiệu
         User::create([
-            'name' => 'Ban Giám Hiệu', 'email' => '1000002',
+            'name' => 'Đỗ Văn Đỉnh', 'email' => '01006030',
             'password' => Hash::make('123456'), 'role' => 'BOARD', 'department_id' => null,
         ]);
 
