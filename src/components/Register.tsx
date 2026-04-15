@@ -8,7 +8,7 @@ interface RegisterProps {
   onSwitchToLogin: () => void;
 }
 
-const CustomSelect = ({ value, onChange, options, icon: Icon, placeholder }: any) => {
+const CustomSelect = ({ value, onChange, options, icon: Icon, placeholder, disabled }: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
   
@@ -28,10 +28,10 @@ const CustomSelect = ({ value, onChange, options, icon: Icon, placeholder }: any
     <div className="relative" ref={ref}>
       <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
       <div 
-        className={`w-full pl-9 pr-10 py-2.5 bg-white rounded-xl text-sm outline-none cursor-pointer transition-all flex items-center justify-between border ${isOpen ? 'border-[#CC0000] ring-4 ring-[#CC0000]/10' : 'border-slate-200 hover:border-slate-300'}`}
-        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full pl-9 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all flex items-center justify-between border ${disabled ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200 opacity-70' : isOpen ? 'bg-white border-[#CC0000] ring-4 ring-[#CC0000]/10 cursor-pointer' : 'bg-white border-slate-200 hover:border-slate-300 cursor-pointer'}`}
+        onClick={() => { if (!disabled) setIsOpen(!isOpen); }}
       >
-        <span className={selectedOption ? 'text-slate-700' : 'text-slate-400 font-medium'}>
+        <span className={selectedOption ? (disabled ? 'text-slate-500' : 'text-slate-700') : 'text-slate-400 font-medium'}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -207,13 +207,14 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-600 block mb-1.5">Khoa / Đơn vị</label>
+                    <label className={`text-xs font-bold block mb-1.5 ${role === 'QC' ? 'text-slate-400' : 'text-slate-600'}`}>Khoa / Đơn vị</label>
                     <CustomSelect 
                       value={departmentId} 
                       onChange={setDepartmentId} 
                       icon={Building2}
-                      placeholder="-- Chọn khoa --"
+                      placeholder={role === 'QC' ? "Không áp dụng" : "-- Chọn khoa --"}
                       options={departments.map((d: any) => ({ value: d.id, label: d.name }))}
+                      disabled={role === 'QC'}
                     />
                   </div>
 
@@ -221,7 +222,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
                     <label className="text-xs font-bold text-slate-600 block mb-1.5">Chức vụ</label>
                     <CustomSelect 
                       value={role} 
-                      onChange={setRole} 
+                      onChange={(newRole: string) => {
+                        setRole(newRole);
+                        if (newRole === 'QC') setDepartmentId('');
+                      }} 
                       icon={Briefcase}
                       placeholder="Chọn chức vụ"
                       options={[
