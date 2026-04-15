@@ -85,7 +85,8 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     e.preventDefault();
     try {
       await register({ name, email, password, dob, gender, department_id: departmentId, role });
-      setSuccessMsg('Đăng ký thành công! Vui lòng chờ phê duyệt để có thể đăng nhập.');
+      const approver = role === 'QC' ? 'Ban Giám hiệu' : role === 'DEPT_HEAD' ? 'Ban Giám hiệu' : 'Trưởng khoa';
+      setSuccessMsg(`Đăng ký thành công! Vui lòng chờ ${approver} phê duyệt để có thể đăng nhập.`);
       setName(''); setEmail(''); setPassword(''); setDob(''); setGender('Nam'); setDepartmentId(''); setRole('TEACHER');
     } catch (err) {
       // Error handled in store
