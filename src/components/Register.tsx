@@ -1,11 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore, api } from '../store/useAppStore';
-import { User, Mail, Shield, Building2, Key, Calendar, UserRound, Briefcase } from 'lucide-react';
+import { User, Mail, Shield, Building2, Key, Calendar, UserRound, Briefcase, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomDatePicker from './CustomDatePicker';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
 }
+
+const CustomSelect = ({ value, onChange, options, icon: Icon, placeholder }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o: any) => o.value === value);
+
+  return (
+    <div className="relative" ref={ref}>
+      <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
+      <div 
+        className={`w-full pl-9 pr-10 py-2.5 bg-white rounded-xl text-sm outline-none cursor-pointer transition-all flex items-center justify-between border ${isOpen ? 'border-[#CC0000] ring-4 ring-[#CC0000]/10' : 'border-slate-200 hover:border-slate-300'}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className={selectedOption ? 'text-slate-700' : 'text-slate-400 font-medium'}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 5, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 5, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-[0_15px_40px_-15px_rgba(0,0,0,0.15)] overflow-hidden max-h-60 overflow-y-auto"
+          >
+            {options.map((opt: any) => (
+              <div
+                key={opt.value}
+                onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                className={`px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-slate-50 flex flex-col ${value === opt.value ? 'bg-[#CC0000]/5 text-[#CC0000] border-l-2 border-[#CC0000]' : 'text-slate-600 border-l-2 border-transparent'}`}
+              >
+                <span className={`font-semibold ${value === opt.value ? 'text-[#CC0000]' : 'text-slate-700'}`}>{opt.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   const [name, setName] = useState('');
@@ -127,63 +182,54 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
                   <div>
                     <label className="text-xs font-bold text-slate-600 block mb-1.5">Ngày sinh</label>
-                    <div className="relative">
-                      <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
-                      <input 
-                        type="date"
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm text-slate-700 focus:ring-4 focus:ring-[#CC0000]/10 focus:border-[#CC0000] outline-none cursor-pointer appearance-none relative [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:top-0 [&::-webkit-calendar-picker-indicator]:left-0 transition-all"
-                        value={dob} onChange={e => setDob(e.target.value)}
-                      />
-                    </div>
+                    <CustomDatePicker
+                      value={dob}
+                      onChange={(date) => setDob(date)}
+                      mode="single"
+                      placeholder="dd/mm/yyyy"
+                      hideFooter={true}
+                    />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-600 block mb-1.5">Giới tính</label>
-                    <div className="relative">
-                      <UserRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select 
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm focus:ring-4 focus:ring-[#CC0000]/10 focus:border-[#CC0000] outline-none appearance-none cursor-pointer transition-all"
-                        value={gender} onChange={e => setGender(e.target.value)}
-                      >
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-                      </select>
-                    </div>
+                    <CustomSelect 
+                      value={gender} 
+                      onChange={setGender} 
+                      icon={UserRound}
+                      placeholder="Chọn giới tính"
+                      options={[
+                        { value: 'Nam', label: 'Nam' },
+                        { value: 'Nữ', label: 'Nữ' },
+                        { value: 'Khác', label: 'Khác' }
+                      ]}
+                    />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-600 block mb-1.5">Khoa / Đơn vị</label>
-                    <div className="relative">
-                      <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select
-                        required
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm focus:ring-4 focus:ring-[#CC0000]/10 focus:border-[#CC0000] outline-none appearance-none transition-all cursor-pointer"
-                        value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}
-                      >
-                        <option value="">-- Chọn khoa --</option>
-                        {departments.map((d: any) => (
-                          <option key={d.id} value={d.id}>{d.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <CustomSelect 
+                      value={departmentId} 
+                      onChange={setDepartmentId} 
+                      icon={Building2}
+                      placeholder="-- Chọn khoa --"
+                      options={departments.map((d: any) => ({ value: d.id, label: d.name }))}
+                    />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-600 block mb-1.5">Chức vụ</label>
-                    <div className="relative">
-                      <Briefcase size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select
-                        required
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm focus:ring-4 focus:ring-[#CC0000]/10 focus:border-[#CC0000] outline-none appearance-none transition-all cursor-pointer"
-                        value={role} 
-                        onChange={(e) => setRole(e.target.value)}
-                      >
-                        <option value="TEACHER">Giáo viên</option>
-                        <option value="DEPT_HEAD">Trưởng khoa</option>
-                        <option value="QC">Quản lý chất lượng</option>
-                      </select>
-                    </div>
+                    <CustomSelect 
+                      value={role} 
+                      onChange={setRole} 
+                      icon={Briefcase}
+                      placeholder="Chọn chức vụ"
+                      options={[
+                        { value: 'TEACHER', label: 'Giáo viên' },
+                        { value: 'DEPT_HEAD', label: 'Trưởng khoa' },
+                        { value: 'QC', label: 'Quản lý chất lượng' }
+                      ]}
+                    />
                   </div>
 
                   <div className="sm:col-span-2">

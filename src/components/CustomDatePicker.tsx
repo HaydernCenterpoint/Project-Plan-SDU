@@ -8,9 +8,10 @@ interface CustomDatePickerProps {
   mode?: 'single' | 'multiple';
   placeholder?: string;
   minWidth?: string;
+  hideFooter?: boolean;
 }
 
-const CustomDatePicker = ({ value, onChange, disabled, mode = 'multiple', placeholder, minWidth }: CustomDatePickerProps) => {
+const CustomDatePicker = ({ value, onChange, disabled, mode = 'multiple', placeholder, minWidth, hideFooter = false }: CustomDatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedDates = value ? value.split(',').map((d: string) => d.trim()).filter(Boolean) : [];
   
@@ -80,8 +81,6 @@ const CustomDatePicker = ({ value, onChange, disabled, mode = 'multiple', placeh
     <div 
       className="relative" 
       ref={containerRef}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
       style={{ minWidth }}
     >
       <div 
@@ -96,7 +95,27 @@ const CustomDatePicker = ({ value, onChange, disabled, mode = 'multiple', placeh
         <div className="absolute top-full mt-2 left-0 p-4 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 z-[100] w-[320px] animate-in slide-in-from-top-2 fade-in duration-200">
           <div className="flex justify-between items-center mb-4">
               <button type="button" onClick={prevMonth} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"><ChevronLeft size={18} /></button>
-              <div className="font-bold text-navy">Tháng {month + 1} năm {year}</div>
+              <div className="flex gap-1 items-center">
+                <select 
+                  className="font-bold text-navy bg-transparent outline-none cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded appearance-none"
+                  value={month}
+                  onChange={(e) => setCurrentDate(new Date(year, parseInt(e.target.value), 1))}
+                >
+                  {Array.from({length: 12}).map((_, i) => (
+                    <option key={i} value={i}>Tháng {i + 1}</option>
+                  ))}
+                </select>
+                <select 
+                  className="font-bold text-navy bg-transparent outline-none cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded appearance-none"
+                  value={year}
+                  onChange={(e) => setCurrentDate(new Date(parseInt(e.target.value), month, 1))}
+                >
+                  {Array.from({length: 120}).map((_, i) => {
+                    const y = new Date().getFullYear() - 80 + i;
+                    return <option key={y} value={y}>{y}</option>
+                  })}
+                </select>
+              </div>
               <button type="button" onClick={nextMonth} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"><ChevronLeft size={18} className="rotate-180" /></button>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
@@ -126,42 +145,44 @@ const CustomDatePicker = ({ value, onChange, disabled, mode = 'multiple', placeh
                 );
               })}
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
-              <button 
-                type="button"
-                onClick={() => {
-                  if (!disabled) {
-                    if (mode === 'single') {
-                      onChange('');
-                      setIsOpen(false);
-                    } else {
-                      onChange('');
+            {!hideFooter && (
+              <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (!disabled) {
+                      if (mode === 'single') {
+                        onChange('');
+                        setIsOpen(false);
+                      } else {
+                        onChange('');
+                      }
                     }
-                  }
-                }}
-                className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${disabled ? 'text-slate-400 cursor-default' : 'text-slate-500 hover:bg-slate-100'}`}
-              >
-                Xóa
-              </button>
-              <button 
-                type="button" 
-                onClick={() => { 
-                  setCurrentDate(today); 
-                  if (!disabled) {
-                    const dateStr = dateToStr(today.getFullYear(), today.getMonth(), today.getDate());
-                    if (mode === 'single') {
-                      onChange(dateStr);
-                      setIsOpen(false);
-                    } else if (!selectedDates.includes(dateStr)) {
-                      onChange([...selectedDates, dateStr].sort().join(', '));
+                  }}
+                  className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${disabled ? 'text-slate-400 cursor-default' : 'text-slate-500 hover:bg-slate-100'}`}
+                >
+                  Xóa
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => { 
+                    setCurrentDate(today); 
+                    if (!disabled) {
+                      const dateStr = dateToStr(today.getFullYear(), today.getMonth(), today.getDate());
+                      if (mode === 'single') {
+                        onChange(dateStr);
+                        setIsOpen(false);
+                      } else if (!selectedDates.includes(dateStr)) {
+                        onChange([...selectedDates, dateStr].sort().join(', '));
+                      }
                     }
-                  }
-                }}
-                className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${disabled ? 'text-slate-400 cursor-default' : 'text-primary hover:bg-red-50'}`}
-              >
-                Hôm nay
-              </button>
-            </div>
+                  }}
+                  className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${disabled ? 'text-slate-400 cursor-default' : 'text-primary hover:bg-red-50'}`}
+                >
+                  Hôm nay
+                </button>
+              </div>
+            )}
         </div>
       )}
     </div>
