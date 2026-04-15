@@ -141,7 +141,7 @@ class AuthController extends Controller
             $pendingUsers = User::with('department')->where('status', 'PENDING')->get();
             return response()->json($pendingUsers);
         } else if ($user->role === 'BOARD') {
-            $pendingUsers = User::with('department')->where('role', 'DEPT_HEAD')
+            $pendingUsers = User::with('department')->whereIn('role', ['DEPT_HEAD', 'QC'])
                 ->where('status', 'PENDING')
                 ->get();
             return response()->json($pendingUsers);
@@ -159,7 +159,7 @@ class AuthController extends Controller
     private function canManageUser($head, $userToManage)
     {
         if ($head->role === 'ADMIN') return true;
-        if ($head->role === 'BOARD') return $userToManage->role === 'DEPT_HEAD';
+        if ($head->role === 'BOARD') return in_array($userToManage->role, ['DEPT_HEAD', 'QC']);
         if ($head->role === 'DEPT_HEAD') return $userToManage->department_id === $head->department_id && $userToManage->role === 'TEACHER';
         return false;
     }
@@ -342,7 +342,7 @@ class AuthController extends Controller
             $users = User::whereNotNull('pending_profile')->with('department')->get();
             return response()->json($users);
         } else if ($user->role === 'BOARD') {
-            $users = User::whereNotNull('pending_profile')->where('role', 'DEPT_HEAD')->with('department')->get();
+            $users = User::whereNotNull('pending_profile')->whereIn('role', ['DEPT_HEAD', 'QC'])->with('department')->get();
             return response()->json($users);
         } else if ($user->role === 'DEPT_HEAD') {
             // Get teachers in same dept with pending_profile OR themselves? Only teachers
