@@ -8,6 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class PlanController extends Controller
 {
+    /**
+     * Safely decode a value that may be a JSON string or already an array.
+     * Used because the client sometimes sends JSON strings inside FormData.
+     */
+    private function decodeJsonInput($value, array $default = []): array
+    {
+        if (is_array($value)) return $value;
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : $default;
+        }
+        return $default;
+    }
     public function index(Request $request)
     {
         $user = $request->user();
@@ -39,11 +52,8 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {
-        $items = $request->input('items', []);
-        if (is_string($items)) $items = json_decode($items, true);
-
-        $weeks = $request->input('weeks', []);
-        if (is_string($weeks)) $weeks = json_decode($weeks, true);
+        $items = $this->decodeJsonInput($request->input('items', []));
+        $weeks = $this->decodeJsonInput($request->input('weeks', []));
 
         // Handle file upload
         $attachments = [];
@@ -251,9 +261,9 @@ class PlanController extends Controller
         }
         $plan->update(['attachments' => $finalAttachments]);
 
-        // Sync items
+        // Sync items (items don't carry mutable state like actual_hours, safe to recreate)
         if ($request->has('items')) {
-            $items = is_string($request->input('items')) ? json_decode($request->input('items'), true) : $request->input('items');
+            $items = $this->decodeJsonInput($request->input('items'));
             $plan->items()->delete();
             if (is_array($items)) {
                 foreach ($items as $itemData) {
@@ -270,20 +280,50 @@ class PlanController extends Controller
             }
         }
 
+        // ── FIX: Upsert weeks to preserve actual_hours ──
+        // Instead of deleting all weeks and recreating them (which destroys
+        // the actual_hours reported via submitReport), we now:
+        //   1. Update existing weeks by ID (preserving actual_hours).
+        //   2. Create new weeks that don’t have an ID yet.
+        //   3. Remove orphaned weeks that are no longer in the payload.
         if ($request->has('weeks')) {
-            $weeks = is_string($request->input('weeks')) ? json_decode($request->input('weeks'), true) : $request->input('weeks');
-            $plan->weeks()->delete();
+            $weeks = $this->decodeJsonInput($request->input('weeks'));
             if (is_array($weeks)) {
+                $incomingIds = [];
+
                 foreach ($weeks as $weekData) {
                     $cleanedWeekData = $weekData;
-                    unset($cleanedWeekData['id'], $cleanedWeekData['plan_id'], $cleanedWeekData['user_id'], $cleanedWeekData['created_at'], $cleanedWeekData['updated_at'], $cleanedWeekData['week_label'], $cleanedWeekData['weekLabel'], $cleanedWeekData['planned_hours'], $cleanedWeekData['actual_hours']);
-                    $createPayload = [
+                    unset(
+                        $cleanedWeekData['id'], $cleanedWeekData['plan_id'],
+                        $cleanedWeekData['user_id'], $cleanedWeekData['created_at'],
+                        $cleanedWeekData['updated_at'], $cleanedWeekData['week_label'],
+                        $cleanedWeekData['weekLabel'], $cleanedWeekData['planned_hours'],
+                        $cleanedWeekData['actual_hours']
+                    );
+
+                    $payload = [
                         'user_id' => $request->user()->id,
                         'week_label' => json_encode($cleanedWeekData),
                         'planned_hours' => $weekData['plannedHours'] ?? 0,
                     ];
-                    $plan->weeks()->create($createPayload);
+
+                    if (!empty($weekData['id'])) {
+                        // Existing week — update mutable fields but preserve actual_hours
+                        $existingWeek = $plan->weeks()->find($weekData['id']);
+                        if ($existingWeek) {
+                            $existingWeek->update($payload);
+                            $incomingIds[] = $existingWeek->id;
+                            continue;
+                        }
+                    }
+
+                    // New week — create
+                    $newWeek = $plan->weeks()->create($payload);
+                    $incomingIds[] = $newWeek->id;
                 }
+
+                // Remove weeks that were deleted by the user on the frontend
+                $plan->weeks()->whereNotIn('id', $incomingIds)->delete();
             }
         }
 

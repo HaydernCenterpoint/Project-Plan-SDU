@@ -4,14 +4,14 @@ services:
   # PHP Service
   app:
     build:
-      context: ./laravel
+      context: ./backend
       dockerfile: Dockerfile
     image: saodo-app
     container_name: saodo-app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./laravel:/var/www
+      - ./backend:/var/www
     networks:
       - saodo-network
 
@@ -23,8 +23,8 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./laravel:/var/www
-      - ./laravel/docker/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www
+      - ./backend/docker/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - saodo-network
 
@@ -46,14 +46,14 @@ services:
   # Frontend Service (React + Vite)
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.frontend
     container_name: saodo-frontend
     restart: unless-stopped
     ports:
       - "5173:5173"
     volumes:
-      - .:/app
+      - ./frontend:/app
       - /app/node_modules
     networks:
       - saodo-network

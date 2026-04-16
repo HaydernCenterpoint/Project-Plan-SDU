@@ -7,6 +7,8 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -39,29 +41,55 @@ class AuthController extends Controller
             'dob' => 'nullable|date',
         ]);
 
-        $code = $validated['email'] ?? null;
-        if (!$code) {
-            $maxCode = User::whereRaw('email REGEXP "^[0-9]+$"')
-                ->selectRaw('MAX(CAST(email AS UNSIGNED)) as max_code')
-                ->value('max_code');
-            if ($maxCode && $maxCode >= 1000001) {
-                $code = (string)($maxCode + 1);
-            } else {
-                $code = '1000001';
+        // ── FIX: Race-safe user code generation ──
+        // Wrap in a transaction with retry to prevent duplicate codes
+        // when two requests arrive simultaneously.
+        $maxRetries = 3;
+        $attempt = 0;
+        $user = null;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+            try {
+                $user = DB::transaction(function () use ($validated) {
+                    $code = $validated['email'] ?? null;
+
+                    if (!$code) {
+                        // Lock the users table rows to prevent concurrent reads
+                        // from returning the same MAX value.
+                        $maxCode = User::whereRaw('email REGEXP "^[0-9]+$"')
+                            ->lockForUpdate()
+                            ->selectRaw('MAX(CAST(email AS UNSIGNED)) as max_code')
+                            ->value('max_code');
+
+                        $code = ($maxCode && $maxCode >= 1000001)
+                            ? (string)($maxCode + 1)
+                            : '1000001';
+                    }
+
+                    return User::create([
+                        'name' => $validated['name'],
+                        'email' => $code,
+                        'contact_email' => $validated['contact_email'] ?? null,
+                        'password' => Hash::make($validated['password']),
+                        'department_id' => $validated['department_id'],
+                        'role' => $validated['role'],
+                        'gender' => $validated['gender'] ?? 'Nam',
+                        'dob' => $validated['dob'] ?? null,
+                        'status' => 'PENDING',
+                    ]);
+                });
+
+                break; // Success — exit the retry loop
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Catch unique constraint violation (MySQL error 1062)
+                if ($e->errorInfo[1] === 1062 && $attempt < $maxRetries) {
+                    Log::warning("Register: duplicate code collision, retrying (attempt {$attempt})");
+                    continue;
+                }
+                throw $e;
             }
         }
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $code, // User code
-            'contact_email' => $validated['contact_email'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'department_id' => $validated['department_id'],
-            'role' => $validated['role'],
-            'gender' => $validated['gender'] ?? 'Nam',
-            'dob' => $validated['dob'] ?? null,
-            'status' => 'PENDING', // must be approved
-        ]);
 
         return response()->json([
             'message' => 'Đăng ký thành công. Vui lòng chờ Trưởng khoa duyệt.',
@@ -368,11 +396,12 @@ class AuthController extends Controller
             return response()->json(['message' => 'Không có yêu cầu cập nhật.'], 400);
         }
 
-        foreach (['name', 'department_id', 'email', 'contact_email', 'dob', 'gender', 'password'] as $field) {
-            if (isset($updates[$field]) || array_key_exists($field, $updates)) { // check array_key_exists for nulls
-                $userToApprove->$field = $updates[$field];
-            }
-        }
+        // ── CLEAN CODE: Use fill() instead of manual foreach loop ──
+        // Only allow the whitelisted fields through (model $fillable handles protection).
+        $allowedFields = ['name', 'department_id', 'email', 'contact_email', 'dob', 'gender', 'password'];
+        $filteredUpdates = array_intersect_key($updates, array_flip($allowedFields));
+        $userToApprove->fill($filteredUpdates);
+
         $userToApprove->pending_profile = null;
         $userToApprove->save();
 

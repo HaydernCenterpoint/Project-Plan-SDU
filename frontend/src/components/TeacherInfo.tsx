@@ -303,6 +303,7 @@ const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) =
   });
 
   const deptHeads = filteredUsers.filter(u => u.role === 'DEPT_HEAD');
+  const qcUsers = filteredUsers.filter(u => u.role === 'QC');
   const teachers = filteredUsers.filter(u => u.role === 'TEACHER');
 
   const getAvatarUrl = (avatar: string) => {
@@ -391,6 +392,7 @@ const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) =
           {isBoard ? (
             <>
               {renderUserCards(deptHeads, 'DANH SÁCH TRƯỞNG KHOA')}
+              {renderUserCards(qcUsers, 'DANH SÁCH QUẢN LÝ CHẤT LƯỢNG')}
               {renderUserCards(teachers, 'DANH SÁCH GIÁO VIÊN')}
             </>
           ) : (
@@ -398,7 +400,7 @@ const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) =
             renderUserCards(teachers, 'GIÁO VIÊN HOẠT ĐỘNG')
           )}
 
-          {!isLoading && deptHeads.length === 0 && teachers.length === 0 && (
+          {!isLoading && deptHeads.length === 0 && qcUsers.length === 0 && teachers.length === 0 && (
             <div className="p-8 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">
               Không có dữ liệu giáo viên phù hợp.
             </div>
