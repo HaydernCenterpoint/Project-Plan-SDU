@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 16, 2026 lúc 09:39 AM
+-- Thời gian đã tạo: Th4 16, 2026 lúc 09:55 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -337,13 +337,13 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `ro
 (16, 'Tạ Văn Hiển', '01002007', NULL, '$2y$12$nU5.SFmIchL2ZecU7xD4xuFW4qy1kCv6hEiBolNNgdyN.uwbM4eQ6', 'DEPT_HEAD', 3, NULL, '2026-04-14 01:45:35', '2026-04-14 01:46:30', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (17, 'Nguyễn Thị Hiền', '01002008', NULL, '$2y$12$6RUUyG8qwC5w6Of7XNhucOJX49uSmnOz5ecfQyFZU2mRGZo8bJygO', 'TEACHER', 3, NULL, '2026-04-14 01:55:26', '2026-04-14 17:20:50', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (18, 'Bùi Thị Loan', '01002011', NULL, '$2y$12$oYu//s98/gJP3XdAUslrgOv4ciEhFBieIX2bhVAE6oy9pulP1Gw.2', 'TEACHER', 3, NULL, '2026-04-14 01:55:57', '2026-04-14 17:20:51', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(19, 'Nguyễn Thị Hằng', '01002012', NULL, '$2y$12$wi6e9132uzs/ml8EHI90OuI46QRRqEjNkcopzfxTEIOgGwCxsQ15.', 'TEACHER', 3, NULL, '2026-04-14 01:56:22', '2026-04-14 17:20:53', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
+(19, 'Nguyễn Thị Hằng', '01002012', NULL, '$2y$12$wi6e9132uzs/ml8EHI90OuI46QRRqEjNkcopzfxTEIOgGwCxsQ15.', 'TEACHER', 3, NULL, '2026-04-14 01:56:22', '2026-04-14 17:20:53', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (20, 'Nguyễn Quang Thoại', '01002013', NULL, '$2y$12$qImDvB7yZtANPd1EtPNyXuji9Ml5O0A2GCiTFWSa/7/q8O755QgTe', 'TEACHER', 3, NULL, '2026-04-14 01:56:44', '2026-04-14 17:20:54', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (21, 'Đỗ Thị Làn', '01002019', NULL, '$2y$12$XOVWAExwm/iQDn/iB3bRReTuiwWtvEcC1lzF2OCBSmmgMfabrmldu', 'TEACHER', 3, NULL, '2026-04-14 01:57:08', '2026-04-14 17:20:55', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (22, 'Nguyễn Thị Hồi', '01002021', NULL, '$2y$12$QvJbXokUVwUqzlZTI745u.ZgDDtS1OK7b458fPaC7CD2py/kX.Sc6', 'TEACHER', 3, NULL, '2026-04-14 01:57:33', '2026-04-14 17:20:56', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (23, 'Vũ Thành Trung', '01001003', NULL, '$2y$12$1i8A4M1d182I/BurhpfBZ.x77RHb.3/lO/Akn/1LZLbiMJdnSX8EK', 'TEACHER', 5, NULL, '2026-04-14 01:58:40', '2026-04-14 17:21:34', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (24, 'Cao Huy Giáp', '01001004', NULL, '$2y$12$odD56EZnViRKjaPAIDfFHeK.LXhUSEPOmL68vX2iesUBv4GMHhUC6', 'TEACHER', 5, NULL, '2026-04-14 01:59:03', '2026-04-14 17:21:35', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
-(25, 'Lê Đức Thắng', '01021008', NULL, '$2y$12$Bk5n46Mo6raKKf3BtkYHKevYMQklYsL/JWEaeI/RgZRyv2SumGvAi', 'TEACHER', 5, NULL, '2026-04-14 01:59:24', '2026-04-14 17:21:36', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
+(25, 'Lê Đức Thắng', '1021008', NULL, '$2y$12$Bk5n46Mo6raKKf3BtkYHKevYMQklYsL/JWEaeI/RgZRyv2SumGvAi', 'TEACHER', 5, NULL, '2026-04-14 01:59:24', '2026-04-14 17:21:36', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (26, 'Nguyễn Lương Căn', '01001006', NULL, '$2y$12$Sl/TtmtHuvrsPKIe80/0qOo/vhJ0a7V0ijO52Rt9M2vVRw.mO4pXu', 'TEACHER', 5, NULL, '2026-04-14 01:59:46', '2026-04-14 17:21:37', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (27, 'Phùng Đức Hải Anh', '01001011', NULL, '$2y$12$FNj2TtUXsDtQss3CDH/sF.w0ZbC9pPEK/1lEReVKKrJpms8wfcF7i', 'TEACHER', 5, NULL, '2026-04-14 02:00:07', '2026-04-14 17:21:38', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (28, 'Đỗ Tiến Quyết', '01001014', NULL, '$2y$12$vDVRmSWp23SRft5EfkBou.6cEOF5X1skoPJgKXevLYYXd7y8/w.lq', 'TEACHER', 5, NULL, '2026-04-14 02:00:31', '2026-04-14 17:21:39', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
@@ -360,7 +360,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `ro
 (39, 'Trịnh Văn Cường', '01005030', NULL, '$2y$12$gTI5ZA1jc2DEIBDQu3ySl.6IMwAj25wVEudqQpvhXD6NpgUgPcBnW', 'TEACHER', 2, NULL, '2026-04-14 02:14:28', '2026-04-14 17:20:18', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (40, 'Nguyễn Hữu Chấn', '01014013', NULL, '$2y$12$8rZltkTf8EWjVL80z5jJV.uZKHQp3v17nP462alFR8QyWmM/Iz0Iu', 'TEACHER', 2, NULL, '2026-04-14 02:14:54', '2026-04-14 17:20:20', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (41, 'Nguyễn Thị Tâm', '01006005', NULL, '$2y$12$DvLNbzvqmrynw5foTtHN0.cFARDvxdD.2v6DUPc075sLcHsMtNwPS', 'TEACHER', 1, NULL, '2026-04-14 02:15:44', '2026-04-14 17:19:28', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(42, 'Tạ Thị Mai', '01006007', NULL, '$2y$12$RZykbmkU8abkHO7SwlWPheCrvrNqmEuVZTN0Al8/raemWGB4o0WG6', 'TEACHER', 1, NULL, '2026-04-14 02:16:03', '2026-04-14 17:19:29', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
+(42, 'Tạ Thị Mai', '01006007', NULL, '$2y$12$RZykbmkU8abkHO7SwlWPheCrvrNqmEuVZTN0Al8/raemWGB4o0WG6', 'TEACHER', 1, NULL, '2026-04-14 02:16:03', '2026-04-14 17:19:29', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (43, 'Lê Ngọc Hòa', '01006008', NULL, '$2y$12$QhYqqwaASKTd2xPk6KM5YeKb5fFksP6WsxB8lN.qPrY5aSLPfdBUy', 'TEACHER', 1, NULL, '2026-04-14 02:16:24', '2026-04-14 17:19:30', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (44, 'Đỗ Huy tùng', '01006009', NULL, '$2y$12$omA0oLtnbBnjZ7rW6JolWeg5iIorF9hQf0Mro6IaNMlEZtNINtcee', 'TEACHER', 1, NULL, '2026-04-14 02:16:47', '2026-04-14 17:19:30', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (45, 'Phạm Văn Tuấn', '01006020', NULL, '$2y$12$rDBMPeR3k9CSHbVnpCVbfeLR9QB2RXV1Nc1sfiQS8KcYHxAEUKufO', 'TEACHER', 1, NULL, '2026-04-14 02:17:12', '2026-04-14 17:19:31', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
@@ -375,11 +375,11 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `ro
 (54, 'Nguyễn Văn Tiến', '01007021', NULL, '$2y$12$jbEXMadyrkIWOcs0CNz0CuRJAMetcK2AYVOp3fSPp.3A8GlnOg0HO', 'TEACHER', 1, NULL, '2026-04-14 02:20:14', '2026-04-14 17:19:37', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (55, 'Nguyễn Tiến Phúc', '01007026', NULL, '$2y$12$BJkzC0rTY2SNZAHDYRyknOv752pjpQQb/09E1jhuP1k8W3MUxNTw6', 'TEACHER', 1, NULL, '2026-04-14 02:20:35', '2026-04-14 17:19:38', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (56, 'Nguyễn Thị Quyên', '01007028', NULL, '$2y$12$mILgBl.X014mHjCYr0o3yuOCU5RrSkn3CKWMoCoHs.tkfzit1hfpi', 'TEACHER', 1, NULL, '2026-04-14 02:20:57', '2026-04-14 17:19:38', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(57, 'Dương Thị Hoa', '01006049', NULL, '$2y$12$4jy6FAP2DmxJ6.PHWQTtNuboUHQWuWob4EAgb7NtFUhW3M1TJt3yK', 'TEACHER', 1, NULL, '2026-04-14 02:21:14', '2026-04-14 17:19:39', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(58, 'Nguyễn Thị Việt Hương', '01006040', NULL, '$2y$12$8txiF1nAGC484JKXNcBtrOGGC8ATRlh57kyhY2oeILiX.MXvbdEuK', 'TEACHER', 1, NULL, '2026-04-14 02:21:35', '2026-04-14 17:19:40', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
+(57, 'Dương Thị Hoa', '01006049', NULL, '$2y$12$4jy6FAP2DmxJ6.PHWQTtNuboUHQWuWob4EAgb7NtFUhW3M1TJt3yK', 'TEACHER', 1, NULL, '2026-04-14 02:21:14', '2026-04-14 17:19:39', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
+(58, 'Nguyễn Thị Việt Hương', '01006040', NULL, '$2y$12$8txiF1nAGC484JKXNcBtrOGGC8ATRlh57kyhY2oeILiX.MXvbdEuK', 'TEACHER', 1, NULL, '2026-04-14 02:21:35', '2026-04-14 17:19:40', 'ACTIVE', NULL, NULL, 'Nam', NULL, NULL),
 (59, 'Lương Thị Thanh Xuân', '01006038', NULL, '$2y$12$iXkNdVrfwo925IrylWuBq./73MJzCLHpRBBuEHNSbtjTRdOgAL4eS', 'TEACHER', 1, NULL, '2026-04-14 02:21:58', '2026-04-14 17:19:40', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(60, 'Nguyễn Thị Phương Oanh', '01006036', NULL, '$2y$12$pylG7jxdfbmAlc.AeAVEhuji44VOAkAKnhslQs9l81RuozIsHbjxC', 'TEACHER', 1, NULL, '2026-04-14 02:22:25', '2026-04-14 17:19:41', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
-(61, 'Lê Thị Mai', '01021009', NULL, '$2y$12$./h82SQ1.OlO3Pr5uM1k8.X/XQxRpYYmTTQXO3Zitr37efeWNqjpe', 'TEACHER', 1, NULL, '2026-04-14 02:22:45', '2026-04-14 17:19:43', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
+(60, 'Nguyễn Thị Phưpng Oanh', '01006036', NULL, '$2y$12$pylG7jxdfbmAlc.AeAVEhuji44VOAkAKnhslQs9l81RuozIsHbjxC', 'TEACHER', 1, NULL, '2026-04-14 02:22:25', '2026-04-14 17:19:41', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
+(61, 'Lê Thị Mai', '1021009', NULL, '$2y$12$./h82SQ1.OlO3Pr5uM1k8.X/XQxRpYYmTTQXO3Zitr37efeWNqjpe', 'TEACHER', 1, NULL, '2026-04-14 02:22:45', '2026-04-14 17:19:43', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (62, 'Nguyễn Thị Phương', '01006029', NULL, '$2y$12$5oPQBT8wxLD8j6LwgTGfbuqxMYRyl6XDdAkCqmSy9bkGXOkFsQuWu', 'TEACHER', 1, NULL, '2026-04-14 02:23:10', '2026-04-14 17:19:43', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (63, 'Phạm Thị Thảo', '01006028', NULL, '$2y$12$pnYSmq6EsjDr.xXs47tKtOM8QDR1WuOM1hvM9FS45grg.henbU.3a', 'TEACHER', 1, NULL, '2026-04-14 02:23:31', '2026-04-14 17:19:44', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
 (64, 'Nguyễn Thị Thảo', '01006026', NULL, '$2y$12$ivM7DhK4k9onSv/JYRVnXuzTwYWSJutwnr9VPahhrtf2aNRpwXTQy', 'TEACHER', 1, NULL, '2026-04-14 02:23:52', '2026-04-14 17:19:45', 'ACTIVE', NULL, NULL, 'Nữ', NULL, NULL),
@@ -453,15 +453,7 @@ INSERT INTO `user_activities` (`id`, `user_id`, `type`, `description`, `created_
 (41, 2, 'login', 'Đăng nhập thành công', '2026-04-14 19:38:21', '2026-04-14 19:38:21'),
 (42, 6, 'login', 'Đăng nhập thành công', '2026-04-14 19:39:25', '2026-04-14 19:39:25');
 
--- --------------------------------------------------------
 
---
--- [REMOVED] 3 VIEWs đã bị xóa vì tham chiếu đến bảng không tồn tại:
--- - v_ket_qua_giang_vien (cần: ket_qua_kiem_tra, khoa, giang_vien)
--- - v_ke_hoach_khoa_dien (cần: chi_tiet_ke_hoach, ke_hoach_khai_thac, giang_vien, thiet_bi)
--- - v_tong_hop_khoa (cần: bao_cao_tong_hop, khoa)
--- Các VIEWs này thuộc schema cũ, không tương thích với schema Laravel hiện tại.
---
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -487,15 +479,13 @@ ALTER TABLE `departments`
 --
 ALTER TABLE `equipment`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `equipment_code_unique` (`code`),
   ADD KEY `equipment_location_id_foreign` (`location_id`);
 
 --
 -- Chỉ mục cho bảng `locations`
 --
 ALTER TABLE `locations`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `locations_code_unique` (`code`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Chỉ mục cho bảng `migrations`
@@ -518,9 +508,7 @@ ALTER TABLE `plans`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `plans_code_unique` (`code`),
   ADD KEY `plans_user_id_foreign` (`user_id`),
-  ADD KEY `plans_department_id_foreign` (`department_id`),
-  ADD KEY `plans_status_index` (`status`),
-  ADD KEY `plans_month_year_index` (`month`, `year`);
+  ADD KEY `plans_department_id_foreign` (`department_id`);
 
 --
 -- Chỉ mục cho bảng `plan_items`
@@ -531,15 +519,13 @@ ALTER TABLE `plan_items`
   ADD KEY `plan_items_location_id_foreign` (`location_id`),
   ADD KEY `plan_items_equipment_id_foreign` (`equipment_id`),
   ADD KEY `plan_items_executor_id_foreign` (`executor_id`),
-  ADD KEY `plan_items_mentor_id_foreign` (`mentor_id`),
-  ADD KEY `plan_items_type_index` (`type`);
+  ADD KEY `plan_items_mentor_id_foreign` (`mentor_id`);
 
 --
 -- Chỉ mục cho bảng `plan_weeks`
 --
 ALTER TABLE `plan_weeks`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `plan_weeks_unique` (`plan_id`, `user_id`, `week_label`),
   ADD KEY `plan_weeks_plan_id_foreign` (`plan_id`),
   ADD KEY `plan_weeks_user_id_foreign` (`user_id`);
 
