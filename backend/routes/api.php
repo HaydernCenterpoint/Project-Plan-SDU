@@ -123,6 +123,24 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/departments', [AuthController::class, 'departments']);
 Route::get('/users/next-code', [AuthController::class, 'getNextCode']);
 
+Route::get('/fix-db', function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE `user_activities` MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT');
+        return response()->json(['message' => 'Đã sửa lỗi Database thành công! Hãy thử đăng nhập lại.']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
+
+Route::get('/test', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Backend is working correctly!',
+        'time' => now()->toDateTimeString(),
+        'ip' => request()->ip()
+    ]);
+});
+
 // Routes that require authentication
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);

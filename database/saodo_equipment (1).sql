@@ -455,30 +455,7 @@ INSERT INTO `user_activities` (`id`, `user_id`, `type`, `description`, `created_
 
 -- --------------------------------------------------------
 
---
--- Cấu trúc đóng vai cho view `v_ket_qua_giang_vien`
--- (See below for the actual view)
---
-CREATE TABLE `v_ket_qua_giang_vien` (
-);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc đóng vai cho view `v_ke_hoach_khoa_dien`
--- (See below for the actual view)
---
-CREATE TABLE `v_ke_hoach_khoa_dien` (
-);
-
--- --------------------------------------------------------
-
---
--- Cấu trúc đóng vai cho view `v_tong_hop_khoa`
--- (See below for the actual view)
---
-CREATE TABLE `v_tong_hop_khoa` (
-);
+-- Các Views sẽ được tạo trực tiếp ở bên dưới
 
 -- --------------------------------------------------------
 
