@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore, api } from '../store/useAppStore';
 import { 
   FileCheck, 
   Clock, 
@@ -10,6 +10,7 @@ import {
   Eye,
   ArrowUpRight,
   CalendarDays,
+  Building,
 } from 'lucide-react';
 
 import { Plan } from '../types';
@@ -129,6 +130,14 @@ const Dashboard = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => 
 
   const [filterMonth, setFilterMonth] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterDept, setFilterDept] = useState('ALL');
+  const [departments, setDepartments] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (currentUser?.role === 'BOARD' || currentUser?.role === 'QC') {
+      api.get('/departments').then((res: any) => setDepartments(res.data)).catch(console.error);
+    }
+  }, [currentUser?.role]);
 
   const availableMonths = Array.from(new Set(plans.map(p => `Tháng ${p.month}/${p.year}`)));
 
@@ -136,7 +145,8 @@ const Dashboard = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => 
     const statusMatch = filterStatus === 'ALL' || p.status === filterStatus;
     const monthStr = `Tháng ${p.month}/${p.year}`;
     const monthMatch = filterMonth === 'ALL' || monthStr === filterMonth;
-    return statusMatch && monthMatch;
+    const deptMatch = filterDept === 'ALL' || p.departmentId?.toString() === filterDept.toString();
+    return statusMatch && monthMatch && deptMatch;
   });
 
   const myPlans = currentUser?.role === 'DEPT_HEAD'
@@ -181,6 +191,21 @@ const Dashboard = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => 
             icon={<CalendarDays size={15} />}
             minWidth="130px"
           />
+
+          {(currentUser?.role === 'BOARD' || currentUser?.role === 'QC') && (
+            <CustomSelect
+              value={filterDept}
+              onChange={(val) => setFilterDept(String(val))}
+              options={[
+                { value: 'ALL', label: 'Mọi khoa' },
+                ...departments
+                  .filter((d: any) => d.name.toLowerCase().includes('khoa') && !d.name.toLowerCase().includes('quản lý'))
+                  .map((d: any) => ({ value: d.id, label: d.name }))
+              ]}
+              icon={<Building size={15} />}
+              minWidth="150px"
+            />
+          )}
 
           <CustomSelect
             value={filterStatus}

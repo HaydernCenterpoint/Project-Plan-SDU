@@ -153,6 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/pending', [AuthController::class, 'getPendingUsers']);
     Route::put('/users/{id}/approve', [AuthController::class, 'approveUser']);
     Route::put('/users/{id}/reject', [AuthController::class, 'rejectUser']);
+    Route::delete('/users/{id}', [AuthController::class, 'destroyUser']);
     
     // User Profile Routes
     Route::post('/users/avatar', [AuthController::class, 'updateAvatar']);

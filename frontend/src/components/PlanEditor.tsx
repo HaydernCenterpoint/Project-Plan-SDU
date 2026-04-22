@@ -132,15 +132,26 @@ const CustomDatePicker = ({ value, onChange, disabled }: { value: string, onChan
                 const isSelected = selectedDates.includes(dateStr);
                 const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
                 
+                let isRestricted = false;
+                if (today.getFullYear() > 2026 || (today.getFullYear() === 2026 && today.getMonth() + 1 >= 5)) {
+                   const cellDate = new Date(year, month, d);
+                   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                   if (cellDate < todayDate) isRestricted = true;
+                   if (d <= 5) isRestricted = true;
+                }
+                const isDisabled = disabled || isRestricted;
+
                 return (
                   <button
                     type="button"
                     key={i}
-                    onClick={() => { if (!disabled) handleSelect(d); }}
+                    onClick={() => { if (!isDisabled) handleSelect(d); }}
                     className={`h-8 rounded-lg text-sm font-bold flex items-center justify-center transition-all focus:outline-none
                       ${isSelected ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105' : 
-                        isToday ? `bg-red-50 text-primary border border-red-200 ${!disabled ? 'hover:bg-red-100' : ''}` : `text-zinc-700 ${!disabled ? 'hover:bg-zinc-100' : ''}`}
-                      ${disabled ? 'cursor-default' : ''}`}
+                        isToday ? `bg-red-50 text-primary border border-red-200 ${!isDisabled ? 'hover:bg-red-100' : ''}` : 
+                        isRestricted ? 'text-zinc-300 bg-zinc-50 line-through' : `text-zinc-700 ${!isDisabled ? 'hover:bg-zinc-100' : ''}`}
+                      ${isDisabled ? 'cursor-not-allowed opacity-60' : ''}`}
+                    title={isRestricted ? "Thời gian thực hiện phải sau ngày 5 và không được là ngày quá khứ" : ""}
                   >
                     {d}
                   </button>
@@ -151,8 +162,14 @@ const CustomDatePicker = ({ value, onChange, disabled }: { value: string, onChan
               <button 
                 type="button" 
                 onClick={() => { 
-                  setCurrentDate(today); 
-                  if (!disabled) {
+                  setCurrentDate(today);
+                  
+                  let todayRestricted = false;
+                  if (today.getFullYear() > 2026 || (today.getFullYear() === 2026 && today.getMonth() + 1 >= 5)) {
+                     if (today.getDate() <= 5) todayRestricted = true;
+                  }
+                  
+                  if (!disabled && !todayRestricted) {
                     const dateStr = dateToStr(today.getFullYear(), today.getMonth(), today.getDate());
                     if (!selectedDates.includes(dateStr)) {
                       onChange([...selectedDates, dateStr].sort().join(', '));
@@ -729,18 +746,16 @@ const PlanEditor: React.FC<PlanEditorProps> = ({ plan, onClose }) => {
                           })()}
                         </div>
                       </div>
-                      {(isReporting || week.actualHours !== undefined) && (
-                        <div className="w-[100px]">
-                          <span className="text-[10px] font-black text-emerald-600 uppercase block mb-1">Thực hiện</span>
-                          <input
-                            type="number"
-                            readOnly={!isReporting}
-                            value={week.actualHours ?? 0}
-                            onChange={e => updateWeek(week.id, 'actualHours', Number(e.target.value))}
-                            className="w-full text-sm font-black text-center py-2 rounded border border-emerald-500/30 bg-emerald-50 text-emerald-600 outline-none focus:ring-1 focus:ring-emerald-400 h-[38px]"
-                          />
-                        </div>
-                      )}
+                      <div className="w-[100px]">
+                        <span className="text-[10px] font-black text-emerald-600 uppercase block mb-1">Thực hiện</span>
+                        <input
+                          type="number"
+                          readOnly={!isEditable}
+                          value={week.actualHours ?? 0}
+                          onChange={e => updateWeek(week.id, 'actualHours', Number(e.target.value))}
+                          className="w-full text-sm font-black text-center py-2 rounded border border-emerald-500/30 bg-emerald-50 text-emerald-600 outline-none focus:ring-1 focus:ring-emerald-400 h-[38px]"
+                        />
+                      </div>
                       
                       {isEditable && (
                         <button 

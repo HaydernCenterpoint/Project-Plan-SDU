@@ -259,7 +259,7 @@ const PendingProfilesModal = ({ onClose }: { onClose: () => void }) => {
 
 // --- Main Teacher Info Component ---
 const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => {
-  const { currentUser, plans } = useAppStore();
+  const { currentUser, fetchPlans } = useAppStore();
   const [activeUsers, setActiveUsers] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
@@ -310,6 +310,17 @@ const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) =
     if (!avatar) return null;
     if (avatar.startsWith('http')) return avatar;
     return `/storage/${avatar}`;
+  };
+
+  const handleProfileDeleted = async (deletedUserId: string | number) => {
+    setActiveUsers(current => current.filter(user => user.id !== deletedUserId));
+    setSelectedProfile((current: any) => current?.id === deletedUserId ? null : current);
+
+    try {
+      await fetchPlans();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const renderUserCards = (users: any[], title: string) => {
@@ -423,6 +434,7 @@ const TeacherInfo = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) =
         selectedProfile={selectedProfile}
         onClose={() => setSelectedProfile(null)}
         onSelectPlan={onSelectPlan}
+        onDeleteSuccess={handleProfileDeleted}
       />
     </div>
   );

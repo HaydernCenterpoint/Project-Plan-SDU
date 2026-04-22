@@ -37,7 +37,9 @@ const NewPlanModal = ({ onClose, onCreated }: { onClose: () => void; onCreated: 
   const [weeks, setWeeks] = useState([0, 0, 0, 0, 0]);
   
   const currentDate = new Date();
-  const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  const [planMonth, setPlanMonth] = useState(currentDate.getMonth() + 1);
+  const [planYear, setPlanYear] = useState(currentDate.getFullYear());
+  const endOfMonth = new Date(planYear, planMonth, 0);
   const daysRemaining = Math.max(0, Math.ceil((endOfMonth.getTime() - currentDate.getTime()) / (1000 * 3600 * 24)));
 
   // Auto-fill title and pre-populate mock data for PDF demo
@@ -52,8 +54,26 @@ const NewPlanModal = ({ onClose, onCreated }: { onClose: () => void; onCreated: 
     if (!title.trim() || !currentUser) return;
     setError(null);
     
-    const month = currentDate.getMonth() + 1;
-    const year = currentDate.getFullYear();
+    const month = planMonth;
+    const year = planYear;
+
+    // Validation for rules: From May onwards, no past dates, create before 5th.
+    // Also, execution after 5th (this will just be a UI note).
+    const isMayOrLater = (year > 2024) || (year === 2024 && month >= 5) || (year === 2026 && month >= 5);
+    // Since we don't know exact year, let's just say if month >= 5 or year > currentYear
+    if (month >= 5 || year > currentDate.getFullYear() || (year === 2026)) {
+        const isPastPlan = (year < currentDate.getFullYear()) || (year === currentDate.getFullYear() && month < currentDate.getMonth() + 1);
+        if (isPastPlan) {
+            setError(`Không được lập kế hoạch cho tháng trong quá khứ.`);
+            return;
+        }
+        if (year === currentDate.getFullYear() && month === currentDate.getMonth() + 1) {
+            if (currentDate.getDate() > 5) {
+                setError(`Đã quá hạn lập kế hoạch cho tháng ${month}. Kế hoạch phải được lập trước ngày 05 hàng tháng.`);
+                return;
+            }
+        }
+    }
 
     const existingPlan = useAppStore.getState().plans.find(p => p.teacherId === currentUser.id && p.month === month && p.year === year);
     if (existingPlan) {
@@ -123,8 +143,35 @@ const NewPlanModal = ({ onClose, onCreated }: { onClose: () => void; onCreated: 
               placeholder="VD: Kế hoạch công tác tháng 12/2025"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+              className="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none mb-3"
             />
+            
+            <div className="grid grid-cols-2 gap-3">
+               <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-1">Tháng</label>
+                  <select 
+                    value={planMonth} 
+                    onChange={e => setPlanMonth(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white"
+                  >
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
+                       <option key={m} value={m}>Tháng {m}</option>
+                    ))}
+                  </select>
+               </div>
+               <div>
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-1">Năm</label>
+                  <select 
+                    value={planYear} 
+                    onChange={e => setPlanYear(Number(e.target.value))}
+                    className="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white"
+                  >
+                    {[2024, 2025, 2026, 2027].map(y => (
+                       <option key={y} value={y}>Năm {y}</option>
+                    ))}
+                  </select>
+               </div>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
@@ -141,7 +188,7 @@ const NewPlanModal = ({ onClose, onCreated }: { onClose: () => void; onCreated: 
           </div>
           
           <div className="mt-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-1">Dự kiến số giờ (Nhập thủ công)</label>
+            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block mb-1">Dự kiến số giờ <span className="text-[10px] text-red-500 normal-case">(Thời gian thực hiện phải sau ngày 05)</span></label>
             <div className="flex gap-2">
                {[1, 2, 3, 4, 5].map((w, idx) => (
                  <div key={w} className="flex-1">
@@ -450,9 +497,9 @@ const MyPlans = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => {
       items: combinedItems
     };
 
-    if (type === 'pdf') exportPlanToPdf(combinedPlan);
-    else if (type === 'docx') exportPlanToDocx(combinedPlan);
-    else if (type === 'print') printPlanBrowser(combinedPlan);
+    if (type === 'pdf') exportPlanToPdf(combinedPlan, currentUser?.name);
+    else if (type === 'docx') exportPlanToDocx(combinedPlan, currentUser?.name);
+    else if (type === 'print') printPlanBrowser(combinedPlan, currentUser?.name);
   };
 
   // Apply search filter (for plans level)
@@ -514,6 +561,14 @@ const MyPlans = ({ onSelectPlan }: { onSelectPlan: (plan: Plan) => void }) => {
                const currentDate = new Date();
                const month = currentDate.getMonth() + 1;
                const year = currentDate.getFullYear();
+               
+               if (year > 2026 || (year === 2026 && month >= 5)) {
+                 if (currentDate.getDate() > 5) {
+                   alert("Từ tháng 5 trở đi, bạn chỉ được lập kế hoạch trước ngày 05 hằng tháng!");
+                   return;
+                 }
+               }
+               
                const title = `Kế hoạch công tác tháng ${month}/${year}`;
                await useAppStore.getState().createPlan({
                   title,

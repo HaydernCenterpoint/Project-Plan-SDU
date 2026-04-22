@@ -192,6 +192,14 @@ class AuthController extends Controller
         return false;
     }
 
+    private function canDeleteUser($actor, $userToDelete)
+    {
+        if ($actor->role !== 'BOARD') return false;
+        if ((int) $actor->id === (int) $userToDelete->id) return false;
+
+        return in_array($userToDelete->role, ['TEACHER', 'DEPT_HEAD', 'QC']);
+    }
+
     public function approveUser(Request $request, $id)
     {
         $head = $request->user();
@@ -229,6 +237,23 @@ class AuthController extends Controller
         $userToReject->save();
 
         return response()->json(['message' => 'Đã từ chối tài khoản.']);
+    }
+
+    public function destroyUser(Request $request, $id)
+    {
+        $actor = $request->user();
+        $userToDelete = User::findOrFail($id);
+
+        if (!$this->canDeleteUser($actor, $userToDelete)) {
+            return response()->json(['message' => 'Không có quyền xóa hồ sơ này.'], 403);
+        }
+
+        DB::transaction(function () use ($userToDelete) {
+            $userToDelete->tokens()->delete();
+            $userToDelete->delete();
+        });
+
+        return response()->json(['message' => 'Đã xóa hồ sơ thành công.']);
     }
 
     public function updateAvatar(Request $request)

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { User as UserIcon, X, Mail, Building2, Shield, CalendarDays, Eye, Calendar, UserRound } from 'lucide-react';
+import { User as UserIcon, X, Mail, Building2, Shield, CalendarDays, Eye, Calendar, UserRound, Trash2, AlertTriangle } from 'lucide-react';
 import { useAppStore, api } from '../store/useAppStore';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -22,11 +22,15 @@ interface TeacherProfileModalProps {
   selectedProfile: any;
   onClose: () => void;
   onSelectPlan: (plan: any) => void;
+  onDeleteSuccess?: (userId: string | number) => void;
 }
 
-export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({ selectedProfile, onClose, onSelectPlan }) => {
-  const { plans } = useAppStore();
+export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({ selectedProfile, onClose, onSelectPlan, onDeleteSuccess }) => {
+  const { plans, currentUser } = useAppStore();
   const [activities, setActivities] = useState<any[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedProfile?.id) {
@@ -36,10 +40,50 @@ export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({ select
     }
   }, [selectedProfile]);
 
+  useEffect(() => {
+    setShowDeleteConfirm(false);
+    setIsDeleting(false);
+    setDeleteError(null);
+  }, [selectedProfile?.id]);
+
   const getAvatarUrl = (avatar: string) => {
     if (!avatar) return null;
     if (avatar.startsWith('http')) return avatar;
     return `/storage/${avatar}`;
+  };
+
+  const canDeleteProfile = currentUser?.role === 'BOARD'
+    && !!selectedProfile
+    && selectedProfile.id !== currentUser?.id
+    && ['TEACHER', 'DEPT_HEAD', 'QC'].includes(selectedProfile.role);
+
+  const handleDeleteProfile = async () => {
+    if (!selectedProfile) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await api.delete(`/users/${selectedProfile.id}`);
+      onDeleteSuccess?.(selectedProfile.id);
+      setShowDeleteConfirm(false);
+      onClose();
+    } catch (error: any) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message || '';
+
+      if (status === 401) {
+        setDeleteError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.');
+      } else if (status === 403) {
+        setDeleteError(message || 'Bạn không có quyền xóa hồ sơ này.');
+      } else if (status === 404 || /route .* could not be found/i.test(message)) {
+        setDeleteError('Máy chủ hiện tại chưa cập nhật chức năng xóa giáo viên.');
+      } else {
+        setDeleteError(message || 'Không thể xóa giáo viên này.');
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (typeof document === 'undefined') return null;
@@ -60,9 +104,23 @@ export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({ select
               <UserIcon size={18} className="text-[#CC0000]" /> 
               Hồ sơ giáo viên
             </h3>
-            <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              {canDeleteProfile && (
+                <button
+                  onClick={() => {
+                    setDeleteError(null);
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="p-2 bg-red-50 hover:bg-red-100 rounded-full text-red-500 transition-colors border border-red-100"
+                  title="Xóa giáo viên"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+              <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
           </div>
           
           <div className="p-6 flex-1 overflow-y-auto w-full">
@@ -236,6 +294,59 @@ export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({ select
               </div>
             </div>
           </div>
+
+          <AnimatePresence>
+            {showDeleteConfirm && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm p-4"
+                onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: 10 }}
+                  transition={{ duration: 0.18 }}
+                  className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mb-4">
+                    <AlertTriangle size={22} />
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-800">Xác nhận xóa giáo viên</h4>
+                  <p className="mt-2 text-sm text-slate-500 leading-6">
+                    Bạn có chắc chắn muốn xóa hồ sơ của <span className="font-bold text-slate-700">{selectedProfile?.name}</span> không?
+                    Dữ liệu kế hoạch và hoạt động liên quan cũng sẽ bị xóa.
+                  </p>
+
+                  {deleteError && (
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                      {deleteError}
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowDeleteConfirm(false)}
+                      disabled={isDeleting}
+                      className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors disabled:opacity-60"
+                    >
+                      Không xác nhận
+                    </button>
+                    <button
+                      onClick={handleDeleteProfile}
+                      disabled={isDeleting}
+                      className="px-4 py-2 rounded-xl bg-[#CC0000] text-white font-semibold hover:bg-[#B80010] transition-colors disabled:opacity-60"
+                    >
+                      {isDeleting ? 'Đang xóa...' : 'Xác nhận xóa'}
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
       )}

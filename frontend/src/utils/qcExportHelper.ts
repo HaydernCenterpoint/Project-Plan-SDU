@@ -80,7 +80,7 @@ export const buildReportHTML = (month: number, departmentsData: { name: string, 
               <th style="width: 45px;">29-31</th>
               <th style="width: 50px;">Số giờ<br/>KH</th>
               <th style="width: 50px;">Số giờ<br/>TH</th>
-              <th style="width: 140px;">Đánh giá</th>
+              <th style="width: 140px;">Ghi chú</th>
             </tr>
           </thead>
           <tbody>
@@ -269,4 +269,85 @@ export const printReportBrowser = (month: number, departmentsData: { name: strin
     `);
     printWindow.document.close();
   }
+};
+
+
+import * as XLSX from 'xlsx';
+
+export const exportReportToXlsx = (month: number, departmentsData: { name: string, rows: any[] }[]) => {
+  const date = new Date();
+  const toRoman = (num: number) => {
+    const romanNumbers = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+    return romanNumbers[num - 1] || num.toString();
+  };
+
+  const wsData: any[][] = [];
+  
+  wsData.push(['TRƯỜNG ĐẠI HỌC SAO ĐỎ']);
+  wsData.push(['PHÒNG QUẢN LÝ CHẤT LƯỢNG']);
+  wsData.push([]);
+  wsData.push(['BÁO CÁO KẾT QUẢ KIỂM TRA, GIÁM SÁT GIẢNG VIÊN KHAI THÁC TRANG THIẾT BỊ']);
+  wsData.push([`Tháng ${month === 0 ? '...' : month} năm ${date.getFullYear()}`]);
+  wsData.push([]);
+  wsData.push(['A. Kiểm tra, giám sát các đơn vị thực hiện theo kế hoạch']);
+  wsData.push(['STT', 'Tuần từ:', '01-05', '06-12', '13-19', '20-26', '27-30', 'Số giờ KH', 'Số giờ TH', 'Ghi chú']);
+
+  departmentsData.forEach((dept, dIdx) => {
+    wsData.push([toRoman(dIdx + 1), dept.name]);
+    
+    let sumTh = [0, 0, 0, 0, 0];
+    let sumTotalKh = 0;
+    let sumTotalTh = 0;
+    
+    if (dept.rows.length === 0) {
+      wsData.push(['', 'Không có dữ liệu']);
+    } else {
+      dept.rows.forEach((row, idx) => {
+        sumTh[0] += row.th[0] || 0;
+        sumTh[1] += row.th[1] || 0;
+        sumTh[2] += row.th[2] || 0;
+        sumTh[3] += row.th[3] || 0;
+        sumTh[4] += row.th[4] || 0;
+        sumTotalKh += row.totalKh || 0;
+        sumTotalTh += row.totalTh || 0;
+        
+        wsData.push([
+          idx + 1,
+          row.teacherName,
+          row.th[0] || 0,
+          row.th[1] || 0,
+          row.th[2] || 0,
+          row.th[3] || 0,
+          row.th[4] || 0,
+          row.totalKh || 0,
+          row.totalTh || 0,
+          (row.totalKh || 0) === 0 && (row.totalTh || 0) === 0 ? 'Chưa có thông tin' : ((row.totalTh || 0) >= (row.totalKh || 0) ? 'Đạt' : 'Chưa đạt')
+        ]);
+      });
+      
+      wsData.push(['', 'Tổng', sumTh[0], sumTh[1], sumTh[2], sumTh[3], sumTh[4], sumTotalKh, sumTotalTh]);
+    }
+    wsData.push(['Xác nhận của Trưởng đơn vị:']);
+    wsData.push([]);
+  });
+
+  wsData.push(['B. Tổng hợp kết quả kiểm tra, giám sát']);
+  departmentsData.forEach((dept, dIdx) => {
+     const totalTeachers = dept.rows.length;
+     const totalHours = dept.rows.reduce((sum, r) => sum + (r.totalTh || 0), 0);
+     wsData.push([toRoman(dIdx + 1) + '.', dept.name]);
+     wsData.push([dIdx + 1 + '.1', 'Số giảng viên khai thác:', '', '', totalTeachers, 'giảng viên']);
+     wsData.push([dIdx + 1 + '.2', 'Tổng số giờ khai thác:', '', '', totalHours, 'giờ']);
+  });
+  
+  wsData.push([]);
+  wsData.push(['C. Nhận xét, góp ý (nếu có)']);
+  wsData.push([]);
+  
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bao_cao');
+  
+  const fileName = month === 0 ? 'Ket_Qua_KTTB_Tat_Ca.xlsx' : `Ket_Qua_KTTB_Thang_${month}.xlsx`;
+  XLSX.writeFile(wb, fileName);
 };

@@ -1,6 +1,6 @@
 import html2pdf from 'html2pdf.js';
 import { formatThoiGian } from './formatThoiGian';
-export const buildPlanHTML = (plan: any) => {
+export const buildPlanHTML = (plan: any, headName: string = '') => {
   const date = new Date();
   
   const teacherTemplate = {
@@ -134,39 +134,43 @@ export const buildPlanHTML = (plan: any) => {
         <div style="font-weight: bold; font-style: italic; font-size: 13pt;">Tháng ${plan.month} năm ${plan.year}</div>
       </div>
 
-      <div class="section-title">I. Mục đích, yêu cầu</div>
-      <div class="sub-title">1. Mục đích</div>
-      <div class="dash-li">- Nâng cao trình độ nghiệp vụ chuyên môn, kỹ năng tay nghề cho giảng viên, sinh viên góp phần nâng cao chất lượng đào tạo của khóa học đáp ứng chuẩn đầu ra của Nhà trường;</div>
-      <div class="dash-li">- Tăng cường khai thác hợp lý, hiệu quả cơ sở vật chất, trang thiết bị, phòng thực hành, thí nghiệm của khoa hiện có phục vụ tốt nhiệm vụ đào tạo và nghiên cứu khoa học của giảng viên, sinh viên.</div>
+      <div class="section-title" style="text-transform: uppercase;">I. Mục đích, yêu cầu</div>
+      <div class="sub-title">1.1. Mục đích</div>
+      <div class="dash-li">- Nâng cao ý thức, trách nhiệm của toàn thể giảng viên, sinh viên đối với công tác khai thác, sử dụng thiết bị dạy học phục vụ hiệu quả cho công tác giảng dạy;</div>
+      <div class="dash-li">- Thực hiện phương châm “Học đi đôi với hành, lý thuyết gắn liền với thực tế”. Đẩy mạnh các hoạt động thực hành thực nghiệm, nâng cao kỹ năng nghề nghiệp cho sinh viên;</div>
+      <div class="dash-li">- Phát huy vai trò và nâng cao hiệu quả sử dụng thiết bị dạy học trong các bộ môn, rèn luyện kỹ năng thực hành, làm chủ trang thiết bị có tại Trung tâm thực- thực nghiệm;</div>
+      <div class="dash-li">- Nâng cao năng lực nghiên cứu khoa học của giảng viên, sinh viên.</div>
       
-      <div class="sub-title">2. Yêu cầu</div>
-      <div class="dash-li">- Đối với giảng viên</div>
-      <div class="plus-li">+ Giảng viên chuẩn bị chu đáo các nội dung thực hành, thí nghiệm, vật tư theo tiến độ thực hiện, đề cương môn học và chuẩn bị mẫu mô hình theo kế hoạch đã dự kiến đảm bảo 100% thời gian lên lớp.</div>
-      <div class="plus-li">+ Giảng viên tham gia đầy đủ, đúng thời gian, địa điểm theo kế hoạch đã đăng ký. Giảng viên hướng dẫn đảm bảo an toàn tuyệt đối về người, thiết bị trong quá trình thực hành, thí nghiệm.</div>
-      <div class="dash-li">- Đối với sinh viên</div>
-      <div class="plus-li">+ Sinh viên tham gia đầy đủ, đúng thời gian, địa điểm theo kế hoạch đã đăng ký.</div>
-      <div class="plus-li">+ Tuân thủ nghiêm ngặt các quy định về an toàn, nội quy phòng thực hành.</div>
+      <div class="sub-title">1.2. Yêu cầu</div>
+      <div class="dash-li">- Giảng viên tích cực khai thác và sử dụng có hiệu quả các thiết bị đã được trang bị, tuyệt đối không để tình trạng có thiết bị có nhưng không sử dụng;</div>
+      <div class="dash-li">- Giảng viên thực hiện đúng thời gian, nội dung nghiên cứu và địa điểm như đã đăng ký trong kế hoạch;</div>
+      <div class="dash-li">- Sắp xếp, bố trí thiết bị khoa học, ngăn nắp. Phòng thực hành thực nghiệm phải được vệ sinh sạch sẽ, thoáng mát, đảm bảo các điều kiện an toàn.</div>
 
-      <div class="section-title">II. Nội dung thực hiện</div>
-      <div class="sub-title">1. Đối với giảng viên</div>
+      <div class="section-title" style="text-transform: uppercase;">II. KẾT QUẢ THỰC HIỆN KẾ HOẠCH KHAI THÁC THIẾT BỊ THÁNG ${plan.month === 1 ? 12 : plan.month - 1}/${plan.month === 1 ? plan.year - 1 : plan.year}</div>
+      <div style="font-style: italic; margin-bottom: 10px;">(Kèm theo kế hoạch số ..../KH-.... ngày .... tháng .... năm ....)</div>
+      <div class="sub-title">a. Giảng viên</div>
+      <br/>
+      <div class="sub-title">b. Sinh viên</div>
+      <br/>
+
+      <div class="section-title" style="text-transform: uppercase;">III. KẾ HOẠCH KHAI THÁC THIẾT BỊ THÁNG ${plan.month}/${plan.year}</div>
+      <div class="sub-title">3.1. Thời gian, đối tượng, địa điểm</div>
+      <div class="dash-li">a. Thời gian thực hiện: Từ 01/${plan.month}/${plan.year} đến 30/${plan.month}/${plan.year}.</div>
+      <div class="dash-li">b. Đối tượng tham gia: Toàn thể giảng viên khoa ${deptName.replace('KHOA ', '').replace('Khoa ', '')}.</div>
+      <div class="dash-li">c. Địa điểm: Trung tâm thực hành, thực nghiệm khoa ${deptName.replace('KHOA ', '').replace('Khoa ', '')}.</div>
+
+      <div class="sub-title" style="margin-top: 15px;">3.2. Nội dung thực hiện</div>
+      <div class="sub-title">a. Giảng viên</div>
       ${buildTable(teacherItems, teacherTemplate)}
 
-      <div class="sub-title">2. Đối với sinh viên</div>
+      <div class="sub-title">b. Sinh viên</div>
       ${buildTable(studentItems, studentTemplate)}
 
-      <div class="section-title">III. Tổ chức thực hiện</div>
-      <div class="sub-title">1. Khoa ${plan.departmentName?.replace('Khoa ', '') || '.......................'}</div>
-      <div class="dash-li">- Lập kế hoạch, triển khai đến giảng viên, sinh viên trong khoa;</div>
-      <div class="dash-li">- Bố trí giảng viên phụ trách phòng máy tính hỗ trợ cài đặt các phần mềm phục vụ khai thác thiết bị;</div>
-      <div class="dash-li">- Quản lý, kiểm tra, đôn đốc giảng viên, sinh viên thực hiện đúng kế hoạch;</div>
-      <div class="dash-li">- Tổng hợp báo cáo Ban Giám hiệu, Phòng Quản lý chất lượng theo quy định.</div>
-      
-      <div class="sub-title">2. Bộ môn ...............................................</div>
-      <div class="dash-li">- Đôn đốc giảng viên, sinh viên tham gia đầy đủ, đúng thời gian, địa điểm.</div>
-      
-      <div class="sub-title">3. Giáo viên, sinh viên</div>
-      <div class="dash-li">- Thực hiện nghiêm túc, đúng kế hoạch đề ra;</div>
-      <div class="dash-li">- Kết thúc thời gian thực hiện kế hoạch giảng viên tổ chức đánh giá kết quả đạt được, sinh viên nộp sản phẩm hoàn thành kế hoạch đã đề ra về bộ môn.</div>
+      <div class="sub-title">3.3. Tổ chức thực hiện</div>
+      <div class="dash-li">- Bộ môn ${deptName.replace('KHOA ', '').replace('Khoa ', '')}, giảng viên được phân công triển khai thực hiện kế hoạch khai thác trang thiết bị tại Trung tâm thực hành, thực nghiệm khoa ${deptName.replace('KHOA ', '').replace('Khoa ', '')}.</div>
+      <div class="dash-li">- Các đ/c Trưởng bộ môn, Phó Trưởng khoa ${deptName.replace('KHOA ', '').replace('Khoa ', '')}:</div>
+      <div class="plus-li">+ Quản lý, kiểm soát quá trình thực hiện hoạt động khai thác trang thiết bị tại trung tâm thực hành, thực nghiệm khoa ${deptName.replace('KHOA ', '').replace('Khoa ', '')}.</div>
+      <div class="plus-li">+ Đôn đốc, nhắc nhở, hỗ trợ các cá nhân thực hiện việc khai thác trang thiết bị đảm bảo chất lượng và đúng kế hoạch./.</div>
 
       <div style="display: flex; justify-content: space-between; text-align: center; font-size: 13pt; margin-top: 40px;">
          <div style="flex: 1;">
@@ -174,15 +178,15 @@ export const buildPlanHTML = (plan: any) => {
          <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
             <span style="font-weight: bold; text-transform: uppercase;">TRƯỞNG KHOA</span>
             <br/><br/><br/><br/><br/>
-            <span style="font-weight: bold;">................................</span>
+            <span style="font-weight: bold;">${headName || '................................'}</span>
          </div>
       </div>
     </div>
   `;
 };
 
-export const exportPlanToPdf = (plan: any) => {
-  const content = buildPlanHTML(plan);
+export const exportPlanToPdf = (plan: any, headName: string = '') => {
+  const content = buildPlanHTML(plan, headName);
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = content;
   
@@ -196,8 +200,8 @@ export const exportPlanToPdf = (plan: any) => {
   } as any).from(tempDiv).save();
 };
 
-export const exportPlanToDocx = (plan: any) => {
-  const content = buildPlanHTML(plan);
+export const exportPlanToDocx = (plan: any, headName: string = '') => {
+  const content = buildPlanHTML(plan, headName);
   const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>KẾ HOẠCH</title></head><body>";
   const footer = "</body></html>";
   const sourceHTML = header + content + footer;
@@ -211,8 +215,8 @@ export const exportPlanToDocx = (plan: any) => {
   document.body.removeChild(fileDownload);
 };
 
-export const printPlanBrowser = (plan: any) => {
-  const content = buildPlanHTML(plan);
+export const printPlanBrowser = (plan: any, headName: string = '') => {
+  const content = buildPlanHTML(plan, headName);
   const printWindow = window.open('', '_blank');
   if (printWindow) {
     printWindow.document.write(`

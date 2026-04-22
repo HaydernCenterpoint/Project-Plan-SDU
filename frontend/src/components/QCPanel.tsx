@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore, api } from '../store/useAppStore';
 import { TeacherProfileModal } from './TeacherProfileModal';
-import { exportReportToDocx, exportReportToPdf, printReportBrowser } from '../utils/qcExportHelper';
+import { exportReportToDocx, exportReportToPdf, printReportBrowser, exportReportToXlsx } from '../utils/qcExportHelper';
 import { Calendar, Filter, Users, MapPin, Printer, FileDown, FileText, CheckCircle, XCircle, UsersRound, TrendingUp, BarChart3, AlertTriangle, CalendarDays } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
@@ -29,7 +29,24 @@ const QCPanel = () => {
     { id: 'd5', name: 'Khoa Ô tô' }
   ];
 
-  const actualDepts = departments.length > 0 ? departments : mockDepts;
+  const actualDepts = (departments.length > 0 ? departments : mockDepts)
+    .filter(dept => dept.name.toLowerCase().includes('khoa') && !dept.name.toLowerCase().includes('quản lý'));
+  const reportableDeptIds = new Set(actualDepts.map(dept => dept.id.toString()));
+  const reportableDeptNames = new Set(actualDepts.map(dept => dept.name));
+  const reportableUsers = users.filter(user => {
+    const departmentId = (user.departmentId ?? user.department_id)?.toString();
+    const departmentName = user.department?.name || '';
+    
+    const isExcluded = user.role === 'DEPT_HEAD' || user.role === 'QC' || user.role === 'BOARD' || user.role === 'ADMIN';
+    
+    return !isExcluded && (
+      reportableDeptIds.has(departmentId || '') || reportableDeptNames.has(departmentName)
+    );
+  });
+  const reportableUserIds = new Set(reportableUsers.map(user => user.id?.toString()));
+  const getDepartmentUsers = (dept: any) => reportableUsers.filter(
+    user => user.department?.name === dept.name || (user.departmentId ?? user.department_id)?.toString() === dept.id.toString()
+  );
   const displayDepartments = selectedDeptId === 'ALL'
     ? actualDepts
     : [actualDepts.find(d => d.id.toString() === selectedDeptId.toString()) || { id: 'unknown', name: 'Khoa (Không xác định)' }];
@@ -37,9 +54,11 @@ const QCPanel = () => {
   const generateExportData = (targetMonth: number) => {
     // keeping old logic for exporting
     return displayDepartments.map(dept => {
-      const deptUsers = users.filter(u => u.department?.name === dept.name || u.departmentId?.toString() === dept.id.toString());
+      const deptUsers = getDepartmentUsers(dept);
       const rows = deptUsers.map(user => {
-        const userPlans = plans.filter(p => p.teacherId === user.id && p.month === targetMonth && p.status !== 'DRAFT');
+        const userPlans = plans.filter(
+          p => p.teacherId?.toString() === user.id?.toString() && p.month === targetMonth && p.status !== 'DRAFT'
+        );
         const kh = [0, 0, 0, 0, 0];
         const th = [0, 0, 0, 0, 0];
         userPlans.forEach(plan => {
@@ -70,7 +89,8 @@ const QCPanel = () => {
   const filteredPlans = validPlans.filter(p => {
     const matchMonth = selectedMonth === 0 || p.month === selectedMonth;
     const matchDept = selectedDeptId === 'ALL' || p.departmentId?.toString() === selectedDeptId;
-    return matchMonth && matchDept;
+    const matchUser = reportableUserIds.has(p.teacherId?.toString());
+    return matchMonth && matchDept && matchUser;
   });
 
   // Calculate stats for PREVIOUS month for trends
@@ -78,8 +98,9 @@ const QCPanel = () => {
   const prevFilteredPlans = validPlans.filter(p => {
     const prevMatches = prevMonth === 0 || p.month === prevMonth;
     const deptMatches = selectedDeptId === 'ALL' || p.departmentId?.toString() === selectedDeptId;
+    const userMatches = reportableUserIds.has(p.teacherId?.toString());
     // Basic year handling for demo if switching Jan to Dec
-    return prevMatches && deptMatches && (selectedMonth !== 1 || (selectedMonth === 1 && p.year === new Date().getFullYear() - 1));
+    return prevMatches && deptMatches && userMatches && (selectedMonth !== 1 || (selectedMonth === 1 && p.year === new Date().getFullYear() - 1));
   });
 
   const totalPlans = filteredPlans.length;
@@ -186,6 +207,12 @@ const QCPanel = () => {
                </button>
                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
                   <button 
+                    onClick={() => exportReportToXlsx(selectedMonth, generateExportData(selectedMonth))}
+                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2 border-b border-slate-100 transition-colors"
+                  >
+                    Xuất ra Excel (XLSX)
+                  </button>
+                  <button 
                     onClick={() => exportReportToDocx(selectedMonth, generateExportData(selectedMonth))}
                     className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-2 border-b border-slate-100 transition-colors"
                   >
@@ -226,7 +253,7 @@ const QCPanel = () => {
 
               <div className="space-y-8 pl-0 sm:pl-4 sm:border-l-2 border-slate-100">
                 {displayDepartments.map((dept, index) => {
-                  const deptUsers = users.filter(u => u.department?.name === dept.name || u.departmentId?.toString() === dept.id.toString());
+                  const deptUsers = getDepartmentUsers(dept);
                   return (
                     <div key={index} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col relative z-0 hover:shadow-md transition-shadow">
                       <div className="px-6 py-4 border-b border-slate-50 bg-slate-50/50 flex flex-wrap gap-4 items-center justify-between">
@@ -253,7 +280,9 @@ const QCPanel = () => {
                           </thead>
                           <tbody className="bg-white">
                             {deptUsers.map((user, rIdx) => {
-                              const userPlans = plans.filter(p => p.teacherId === user.id && p.month === month && p.status !== 'DRAFT');
+                              const userPlans = plans.filter(
+                                p => p.teacherId?.toString() === user.id?.toString() && p.month === month && p.status !== 'DRAFT'
+                              );
                               const kh = [0, 0, 0, 0, 0];
                               const th = [0, 0, 0, 0, 0];
 

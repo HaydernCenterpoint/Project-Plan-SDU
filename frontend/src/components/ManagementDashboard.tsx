@@ -52,12 +52,17 @@ const StatCard = ({ title, value, trend, trendValue, icon: Icon, color }: any) =
 const ManagementDashboard = () => {
   const { plans } = useAppStore();
   const [departments, setDepartments] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     api.get('/departments').then((res: any) => setDepartments(res.data)).catch(console.error);
+    api.get('/users/active').then((res: any) => setUsers(res.data)).catch(console.error);
   }, []);
 
-  const validPlans = plans.filter(p => p.status !== 'DRAFT');
+  const deptHeadIds = new Set(users.filter(u => u.role === 'DEPT_HEAD').map(u => u.id?.toString()));
+
+
+  const validPlans = plans.filter(p => p.status !== 'DRAFT' && !deptHeadIds.has(p.teacherId?.toString()));
 
   // Compute real metrics
   const totalPlans   = validPlans.length;
@@ -95,7 +100,8 @@ const ManagementDashboard = () => {
     { id: '4', name: 'Khoa May' },
     { id: '5', name: 'Khoa Ô tô' }
   ];
-  const actualDepts = departments.length > 0 ? departments : mockDepts;
+  const actualDepts = (departments.length > 0 ? departments : mockDepts)
+    .filter(dept => dept.name.toLowerCase().includes('khoa') && !dept.name.toLowerCase().includes('quản lý'));
   
   const deptMap: Record<string, { kh: number; th: number; dt: number, teachers: Set<string>, planCount: number }> = {};
   
