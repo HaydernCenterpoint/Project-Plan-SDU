@@ -279,66 +279,98 @@ const QCPanel = () => {
                             </tr>
                           </thead>
                           <tbody className="bg-white">
-                            {deptUsers.map((user, rIdx) => {
-                              const userPlans = plans.filter(
-                                p => p.teacherId?.toString() === user.id?.toString() && p.month === month && p.status !== 'DRAFT'
-                              );
-                              const kh = [0, 0, 0, 0, 0];
-                              const th = [0, 0, 0, 0, 0];
+                            {(() => {
+                              const rows = deptUsers.map((user) => {
+                                const userPlans = plans.filter(
+                                  p => p.teacherId?.toString() === user.id?.toString() && p.month === month && p.status !== 'DRAFT'
+                                );
+                                const kh = [0, 0, 0, 0, 0];
+                                const th = [0, 0, 0, 0, 0];
 
-                              userPlans.forEach(plan => {
-                                const isCompleted = ['COMPLETED', 'REPORT_SUBMITTED', 'ACCEPTED_TO_BGH'].includes(plan.status || '');
-                                plan.weeks?.forEach((week: any, idx: number) => {
-                                  if (idx < 5) {
-                                    const planned = Number(week.plannedHours || 0);
-                                    kh[idx] += planned;
-                                    if (isCompleted) th[idx] += planned;
-                                  }
+                                userPlans.forEach(plan => {
+                                  const isCompleted = ['COMPLETED', 'REPORT_SUBMITTED', 'ACCEPTED_TO_BGH'].includes(plan.status || '');
+                                  plan.weeks?.forEach((week: any, idx: number) => {
+                                    if (idx < 5) {
+                                      const planned = Number(week.plannedHours || 0);
+                                      kh[idx] += planned;
+                                      if (isCompleted) th[idx] += planned;
+                                    }
+                                  });
                                 });
+
+                                const totalKh = kh.reduce((a, b) => a + b, 0);
+                                const totalTh = th.reduce((a, b) => a + b, 0);
+                                
+                                let evaluation = <span className="text-slate-400 italic font-normal text-[11px]">Chưa có thông tin</span>;
+                                if (totalKh > 0) {
+                                  if (totalTh >= totalKh) {
+                                    evaluation = <span className="text-emerald-600 font-bold text-xs uppercase tracking-tight">Đạt yêu cầu</span>;
+                                  } else {
+                                    evaluation = <span className="text-red-600 font-bold text-xs uppercase tracking-tight">Chưa đạt yêu cầu</span>;
+                                  }
+                                }
+
+                                return { user, th, kh, totalKh, totalTh, evaluation };
                               });
 
-                              const totalKh = kh.reduce((a, b) => a + b, 0);
-                              const totalTh = th.reduce((a, b) => a + b, 0);
+                              let deptTotalThWeek = [0, 0, 0, 0, 0];
+                              let deptTotalKh = 0;
+                              let deptTotalTh = 0;
                               
-                              let evaluation = <span className="text-slate-400 italic font-normal text-[11px]">Chưa có thông tin</span>;
-                              if (totalKh > 0) {
-                                if (totalTh >= totalKh) {
-                                  evaluation = <span className="text-emerald-600 font-bold text-xs uppercase tracking-tight">Đạt yêu cầu</span>;
-                                } else {
-                                  evaluation = <span className="text-red-600 font-bold text-xs uppercase tracking-tight">Chưa đạt yêu cầu</span>;
-                                }
-                              }
+                              rows.forEach(r => {
+                                r.th.forEach((v, i) => deptTotalThWeek[i] += v);
+                                deptTotalKh += r.totalKh;
+                                deptTotalTh += r.totalTh;
+                              });
 
                               return (
-                                <tr key={user.id} className="hover:bg-slate-50 transition-colors group">
-                                  <td className="p-3 font-medium text-slate-600 text-center outline outline-1 outline-slate-200 bg-white">{rIdx + 1}</td>
-                                  <td className="p-3 text-left font-medium outline outline-1 outline-slate-200 bg-white">
-                                    <button
-                                      onClick={() => setSelectedProfile(user)}
-                                      className="hover:underline hover:text-red-500 transition-colors text-slate-800 truncate max-w-[150px]"
-                                      title={user.name}
-                                    >
-                                      {user.name}
-                                    </button>
-                                  </td>
-                                  <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{th[0] > 0 ? th[0] : '0'}</td>
-                                  <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{th[1] > 0 ? th[1] : '0'}</td>
-                                  <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{th[2] > 0 ? th[2] : '0'}</td>
-                                  <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{th[3] > 0 ? th[3] : '0'}</td>
-                                  <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{th[4] > 0 ? th[4] : '0'}</td>
-                                  <td className="p-3 font-black text-amber-700 text-center outline outline-1 outline-slate-200 bg-amber-50/30">{totalKh}</td>
-                                  <td className="p-3 font-black text-blue-700 text-center outline outline-1 outline-slate-200 bg-blue-50/30">{totalTh}</td>
-                                  <td className="p-3 text-center outline outline-1 outline-slate-200 bg-white">
-                                    {evaluation}
-                                  </td>
-                                </tr>
+                                <>
+                                  {rows.map((row, rIdx) => (
+                                    <tr key={row.user.id} className="hover:bg-slate-50 transition-colors group">
+                                      <td className="p-3 font-medium text-slate-600 text-center outline outline-1 outline-slate-200 bg-white">{rIdx + 1}</td>
+                                      <td className="p-3 text-left font-medium outline outline-1 outline-slate-200 bg-white">
+                                        <button
+                                          onClick={() => setSelectedProfile(row.user)}
+                                          className="hover:underline hover:text-red-500 transition-colors text-slate-800 truncate max-w-[150px]"
+                                          title={row.user.name}
+                                        >
+                                          {row.user.name}
+                                        </button>
+                                      </td>
+                                      <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{row.th[0] > 0 ? row.th[0] : '0'}</td>
+                                      <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{row.th[1] > 0 ? row.th[1] : '0'}</td>
+                                      <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{row.th[2] > 0 ? row.th[2] : '0'}</td>
+                                      <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{row.th[3] > 0 ? row.th[3] : '0'}</td>
+                                      <td className="p-3 font-medium text-slate-700 text-center outline outline-1 outline-slate-200 bg-white">{row.th[4] > 0 ? row.th[4] : '0'}</td>
+                                      <td className="p-3 font-black text-amber-700 text-center outline outline-1 outline-slate-200 bg-amber-50/30">{row.totalKh}</td>
+                                      <td className="p-3 font-black text-blue-700 text-center outline outline-1 outline-slate-200 bg-blue-50/30">{row.totalTh}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-white">
+                                        {row.evaluation}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                  {rows.length === 0 && (
+                                    <tr>
+                                      <td colSpan={10} className="p-8 text-slate-400 font-medium">Không có giáo viên nào.</td>
+                                    </tr>
+                                  )}
+                                  {rows.length > 0 && (
+                                    <tr className="bg-slate-50 font-bold">
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100"></td>
+                                      <td className="p-3 text-left outline outline-1 outline-slate-200 bg-slate-100 uppercase text-slate-700">Tổng cộng</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100 text-slate-800">{deptTotalThWeek[0] > 0 ? deptTotalThWeek[0] : '0'}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100 text-slate-800">{deptTotalThWeek[1] > 0 ? deptTotalThWeek[1] : '0'}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100 text-slate-800">{deptTotalThWeek[2] > 0 ? deptTotalThWeek[2] : '0'}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100 text-slate-800">{deptTotalThWeek[3] > 0 ? deptTotalThWeek[3] : '0'}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100 text-slate-800">{deptTotalThWeek[4] > 0 ? deptTotalThWeek[4] : '0'}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-amber-100 text-amber-900">{deptTotalKh}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-blue-100 text-blue-900">{deptTotalTh}</td>
+                                      <td className="p-3 text-center outline outline-1 outline-slate-200 bg-slate-100"></td>
+                                    </tr>
+                                  )}
+                                </>
                               );
-                            })}
-                            {deptUsers.length === 0 && (
-                              <tr>
-                                <td colSpan={10} className="p-8 text-slate-400 font-medium">Không có giáo viên nào.</td>
-                              </tr>
-                            )}
+                            })()}
                           </tbody>
                         </table>
                       </div>

@@ -124,7 +124,7 @@ export const buildPlanHTML = (plan: any, headName: string = '') => {
         <div>
           <div style="font-weight: bold; text-transform: uppercase;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
           <div style="font-weight: bold; text-decoration: underline;">Độc lập - Tự do - Hạnh phúc</div>
-          <div style="font-style: italic; margin-top: 5px;">Hải Dương, ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}</div>
+          <div style="font-style: italic; margin-top: 5px;">Hải Phòng, ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}</div>
         </div>
       </div>
 

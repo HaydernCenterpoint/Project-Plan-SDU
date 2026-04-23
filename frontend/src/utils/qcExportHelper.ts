@@ -92,7 +92,7 @@ export const buildReportHTML = (month: number, departmentsData: { name: string, 
           </tbody>
         </table>
         <div class="dept-signature">
-          Xác nhận của Trưởng đơn vị: .......................................
+          Xác nhận của Trưởng đơn vị: Đã xác nhận, hiệu trưởng đã xác nhận
         </div>
       </div>
     `;
@@ -197,7 +197,7 @@ export const buildReportHTML = (month: number, departmentsData: { name: string, 
             <span style="font-weight: bold;">TS. Đỗ Văn Đình</span>
          </div>
          <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-            <span style="font-style: italic; margin-bottom: 5px;">Hải Dương, ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}</span>
+            <span style="font-style: italic; margin-bottom: 5px;">Hải Phòng, ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}</span>
             <span style="font-weight: bold; text-transform: uppercase;">TRƯỞNG PHÒNG</span>
             <br/><br/><br/><br/><br/>
             <span style="font-weight: bold;">Tạ Hồng Phong</span>
@@ -327,7 +327,7 @@ export const exportReportToXlsx = (month: number, departmentsData: { name: strin
       
       wsData.push(['', 'Tổng', sumTh[0], sumTh[1], sumTh[2], sumTh[3], sumTh[4], sumTotalKh, sumTotalTh]);
     }
-    wsData.push(['Xác nhận của Trưởng đơn vị:']);
+    wsData.push(['Xác nhận của Trưởng đơn vị: Đã xác nhận, hiệu trưởng đã xác nhận']);
     wsData.push([]);
   });
 
